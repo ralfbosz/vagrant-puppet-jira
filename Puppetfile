@@ -18,5 +18,8 @@ mod 'brycejohnson-jira',
 mod 'mkrakowitzer-stash',
   :git => "https://github.com/mkrakowitzer/puppet-stash.git"
 
-mode 'jfryman/nginx',
+mod 'mkrakowitzer-confluence',
+  :git => "https://github.com/mkrakowitzer/puppet-confluence.git"
+
+mod 'jfryman/nginx',
   :git => "https://github.com/jfryman/puppet-nginx.git"
