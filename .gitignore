@@ -1,0 +1,6 @@
+modules
+files/*.gz
+Puppetfile.lock
+.librarian/
+.tmp/
+.vagrant/
