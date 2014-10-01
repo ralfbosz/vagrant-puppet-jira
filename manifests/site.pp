@@ -6,24 +6,30 @@ node default {
 
   class { 'nginx': } ->
 
+  class { 'postgresql::globals':
+    manage_package_repo => true,
+    version             => '9.3',
+  }->
+
   class { 'postgresql::server': } ->
 
-  deploy::file { 'jdk-7u65-linux-x64.tar.gz':
+  deploy::file { 'jdk-7u67-linux-x64.tar.gz':
     target  => '/opt/java',
     url     => 'http://localhost',
     strip   => true,
     require => Class['nginx::service'],
   } ->
-
+  #atlassian-jira-5.1.7.tar.gz
   class { 'jira':
     downloadURL => 'http://localhost/',
     javahome    => '/opt/java',
-    version     => '6.3.4a',
+    version     => '6.0.6',
     proxy       => {
       scheme    => 'http',
       proxyName => $::ipaddress_eth1,
       proxyPort => '80',
     },
+    #    staging_or_deploy => 'deploy',
   }
 
   nginx::resource::vhost { 'all':
