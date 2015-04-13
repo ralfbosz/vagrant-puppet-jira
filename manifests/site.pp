@@ -23,7 +23,7 @@ node default {
   class { 'jira':
     downloadURL => 'http://localhost/',
     javahome    => '/opt/java',
-    version     => '6.0.6',
+    version     => '6.4.1',
     proxy       => {
       scheme    => 'http',
       proxyName => $::ipaddress_eth1,
