@@ -1,65 +1,45 @@
 node default {
 
-   file { '/opt/jira':
-     ensure => 'directory',
-   } ->
+  $_javahome = $facts['os']['family'] ? {
+    'RedHat' => '/usr/java/default',
+    'Debian' => '/usr/lib/jvm/jdk1.8.0_131',
+  }
 
-  class { 'nginx': } ->
+  java::oracle { 'jdk8' :
+    ensure        => 'present',
+    version       => '8',
+    version_major => '8u131',
+    version_minor => 'b11',
+    url_hash      => 'd54c1d3a095b4ff2b6607d096fa80163',
+    java_se       => 'jdk',
+  }
 
-  class { 'postgresql::globals':
+  -> class { '::nginx': }
+
+  -> class { '::postgresql::globals':
     manage_package_repo => true,
     version             => '9.3',
-  }->
-
-  class { 'postgresql::server': } ->
-
-  deploy::file { 'jdk-7u67-linux-x64.tar.gz':
-    target  => '/opt/java',
-    url     => 'http://localhost',
-    strip   => true,
-    require => Class['nginx::service'],
-  } ->
-  #atlassian-jira-5.1.7.tar.gz
-  class { 'jira':
-    downloadURL => 'http://localhost/',
-    javahome    => '/opt/java',
-    version     => '6.4.1',
-    proxy       => {
-      scheme    => 'http',
-      proxyName => $::ipaddress_eth1,
-      proxyPort => '80',
-    },
-    #    staging_or_deploy => 'deploy',
   }
 
-  nginx::resource::vhost { 'all':
-    server_name      => [ 'localhost', '127.0.0.1' ],
-    www_root         => '/vagrant/files',
-  }
+  -> class { '::postgresql::server': }
 
-  nginx::resource::upstream { 'jira':
-    ensure  => present,
-    members => [ 'localhost:8080' ],
-  }
-
-  nginx::resource::vhost { '192.168.33.10':
-    ensure               => present,
-    server_name          => [ $::ipaddress_eth1, $::fqdn, $hostname ],
-    listen_port          => '80',
-    proxy                => 'http://jira',
-    proxy_read_timeout   => '300',
-    location_cfg_prepend => {
-      'proxy_set_header X-Forwarded-Host'   => '$host',
-      'proxy_set_header X-Forwarded-Server' => '$host',
-      'proxy_set_header X-Forwarded-For'    => '$proxy_add_x_forwarded_for',
-      'proxy_set_header Host'               => '$host',
-      'proxy_redirect'                      => 'off',
-    }
-  }
-
-  postgresql::server::db { 'jira':
+  -> postgresql::server::db { 'jira':
     user     => 'jiraadm',
     password => postgresql_password('jiraadm', 'mypassword'),
+  }
+
+  -> class { '::jira':
+    javahome => $_javahome,
+    version  => '7.7.1',
+  }
+
+  include ::jira::facts
+
+  include ::nginx
+
+  nginx::resource::server { "jira.home":
+    listen_port => 80,
+    proxy       => 'http://localhost:8080',
   }
 
 }
