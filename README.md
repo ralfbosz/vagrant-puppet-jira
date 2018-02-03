@@ -12,6 +12,7 @@ $ cd vagrant-puppet-jira
 ```sh
 vagrant up jira1 (CentOS 7)
 vagrant up jira2 (CentOS 6)
+vagrant up jira3 (Ubuntu 16.04)
 ```
 
 License
