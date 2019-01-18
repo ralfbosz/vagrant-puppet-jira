@@ -2,15 +2,15 @@ node default {
 
   $_javahome = $facts['os']['family'] ? {
     'RedHat' => '/usr/java/default',
-    'Debian' => '/usr/lib/jvm/jdk1.8.0_131',
+    'Debian' => '/usr/lib/jvm/jdk1.8.0_201',
   }
 
   java::oracle { 'jdk8' :
     ensure        => 'present',
     version       => '8',
-    version_major => '8u131',
-    version_minor => 'b11',
-    url_hash      => 'd54c1d3a095b4ff2b6607d096fa80163',
+    version_major => '8u201',
+    version_minor => 'b09',
+    url_hash      => '42970487e3af4f5aa5bca3f542482c60',
     java_se       => 'jdk',
   }
 
@@ -18,7 +18,7 @@ node default {
 
   -> class { '::postgresql::globals':
     manage_package_repo => true,
-    version             => '9.3',
+    version             => '9.5',
   }
 
   -> class { '::postgresql::server': }
@@ -30,7 +30,8 @@ node default {
 
   -> class { '::jira':
     javahome => $_javahome,
-    version  => '7.7.1',
+    version  => '7.13.0',
+    jvm_xms  => '384m',
   }
 
   include ::jira::facts
